@@ -1,0 +1,183 @@
+/* ================= GLOBAL STYLING ================= */
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body{
+    margin: 0;
+    padding: 0;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    background:#3B82F6;
+
+    color: white;
+}
+
+/* ================= NAVBAR ================= */
+
+.navbar{
+    width: 100%;
+    height: 65px;
+    background-color:#3B82F6;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 80px;
+}
+
+.logo{
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.nav-links{
+    display: flex;
+    list-style: none;
+    gap: 35px;
+}
+
+.nav-links li a{
+    text-decoration: none;
+    color: white;
+    font-size: 17px;
+    transition: 0.3s;
+}
+
+.nav-links li a:hover{
+    color: #38bdf8;
+}
+
+/* ================= HERO SECTION ================= */
+
+.hero{
+    height: calc(100vh - 80px);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    background: linear-gradient(
+        rgba(15, 23, 42, 0.8),
+        rgba(15, 23, 42, 0.8)
+    ),
+  /*  url('images/hero_section_image.web');*/
+    url('https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?q=80&w=1600&auto=format&fit=crop');
+
+    background-size: cover;
+    background-position: center;
+
+    color: white;
+}
+
+.hero-content{
+    width: 70%;
+}
+
+.hero-content h1{
+    font-size: 60px;
+    margin-bottom: 20px;
+}
+
+.hero-content h1 span{
+    color: #38bdf8;
+}
+
+.hero-content p{
+    font-size: 20px;
+    line-height: 1.8;
+    margin-bottom: 35px;
+}
+
+/* ================= BUTTONS ================= */
+
+.hero-buttons{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.btn{
+    padding: 14px 30px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 17px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.primary-btn{
+    background-color: #38bdf8;
+    color: white;
+}
+
+.primary-btn:hover{
+    background-color: #0ea5e9;
+}
+
+.secondary-btn{
+    border: 2px solid white;
+    color: white;
+}
+
+.secondary-btn:hover{
+    background-color: white;
+    color: #0f172a;
+}
+
+
+/* ================= features.jsp start================= */
+
+.features-section{
+    padding: 80px 10%;
+
+    background: transparent;
+}
+
+.section-title{
+    text-align: center;
+    font-size: 40px;
+    color: white;
+    margin-bottom: 50px;
+}
+
+.features-container{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.feature-card{
+    background-color: #afeeee; /* color name :-   Pale Turquoise */
+    padding: 35px 25px;
+    border-radius: 12px;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+
+    transition: 0.3s;
+}
+
+.feature-card:hover{
+    transform: translateY(-8px);
+}
+
+.feature-card h3{
+    color: #0f172a;
+    margin-bottom: 15px;
+    font-size: 22px;
+}
+
+.feature-card p{
+    color: #475569;
+    line-height: 1.7;
+}
+/* ================= features.jsp  end ================= */

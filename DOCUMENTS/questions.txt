@@ -1,0 +1,8 @@
+❓ “What is the USE CASE of your project?”
+
+“The main use case of my project is to provide a secure and simple digital voting platform where users can register, authenticate, and cast their vote without duplication. It can be used in small-scale elections like college elections, organizational voting, or surveys where fairness and unique participation are required.”
+
+
+Can it be used in real government elections?”
+
+“Currently, it is a basic academic model. For real-world elections, it would require strong security measures like encryption, biometric verification, and server-level deployment.”
