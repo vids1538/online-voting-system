@@ -8,9 +8,6 @@
 
     <!-- CSS FILE -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
-    <style>
-    
-    </style>
 </head>
 <body>
      <!-- NAVBAR PAGE INCLUDED -->
