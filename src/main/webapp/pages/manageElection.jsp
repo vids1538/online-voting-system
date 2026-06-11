@@ -26,13 +26,13 @@ if(session.getAttribute("admin")==null)
         }
 
         .sidebar{
-            position:fixed;
-            left:0;
-            top:0;
-            width:250px;
-            height:100vh;
-            background:#212529;
-        }
+           position:fixed;
+           left:0;
+           top:56px;      /* navbar height */
+           width:250px;
+           height:calc(100vh - 56px);
+           background:#212529;
+}
 
         .sidebar h2{
             color:white;
@@ -61,9 +61,10 @@ if(session.getAttribute("admin")==null)
         }
 
         .main-content{
-            margin-left:250px;
-            padding:30px;
-        }
+         margin-left:250px;
+         margin-top:20px;
+         padding:30px;
+}
 
         .dashboard-card{
             height:220px;
@@ -85,14 +86,38 @@ if(session.getAttribute("admin")==null)
 </head>
 <body>
 
+<%
+if(request.getParameter("success") != null){
+%>
+
+<script>
+    alert("Election Created Successfully!");
+</script>
+
+<%
+}
+%>
+
+<%
+if(request.getParameter("error") != null){
+%>
+
+<script>
+    alert("Election Creation Failed!");
+</script>
+
+<%
+}
+%>
+
+
+
 <!-- admin navbar special  -->
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
     <div class="container-fluid">
 
-        <a class="navbar-brand fw-bold" href="adminDashboard.jsp">
-            🗳 E-Voting Admin
-        </a>
+      
         
         <div class="ms-auto d-flex align-items-center">
 
@@ -155,71 +180,88 @@ if(session.getAttribute("admin")==null)
 <!-- Main Content -->
 <div class="main-content">
 
-    <h1 class="mb-4">
-        Online Voting System - Admin Dashboard
-    </h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Manage Elections</h2>
 
-    <div class="row g-4">
+    <a href="CreateElection.jsp" class="btn btn-primary">
+        + Create Election
+    </a>
+</div>
 
-        <!-- Candidates -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card dashboard-card text-center p-4"
-                 onclick="location.href='manageCandidates.jsp'">
-
-                <i class="bi bi-person-badge-fill card-icon text-primary"></i>
-
-                <h3 class="mt-4">
-                    Manage Candidates
-                </h3>
-
-            </div>
-        </div>
-
-        <!-- Voters -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card dashboard-card text-center p-4"
-                 onclick="location.href='manageVoters.jsp'">
-
-                <i class="bi bi-people-fill card-icon text-success"></i>
-
-                <h3 class="mt-4">
-                    Manage Voters
-                </h3>
-
-            </div>
-        </div>
-
-        <!-- Election -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card dashboard-card text-center p-4"
-                 onclick="location.href='manageElection.jsp'">
-
-               <i class="bi bi-check2-square card-icon text-warning"></i>
-
-                <h3 class="mt-4">
-                    Manage Election
-                </h3>
-
-            </div>
-        </div>
-
-        <!-- Results -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card dashboard-card text-center p-4"
-                 onclick="location.href='results.jsp'">
-
-                <i class="bi bi-bar-chart-fill card-icon text-danger"></i>
-
-                <h3 class="mt-4">
-                    View Results
-                </h3>
-
-            </div>
-        </div>
-
+<div class="card shadow-sm">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Election List</h5>
     </div>
 
+    <div class="card-body">
+
+        <table class="table table-bordered table-hover align-middle">
+
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Election Name</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th width="280">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <!-- Database Loop Here -->
+
+                <tr>
+                    <td>1</td>
+                    <td>Lok Sabha Election 2026</td>
+                    <td>01-07-2026</td>
+                    <td>15-07-2026</td>
+                    <td>
+                        <span class="badge bg-success">
+                            Active
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <a href="editElection.jsp?id=1"
+                           class="btn btn-warning btn-sm">
+                            Edit
+                        </a>
+
+                        <a href="#"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirmDelete();">
+                            Delete
+                        </a>
+
+                        <a href="manageCandidates.jsp?electionId=1"
+                           class="btn btn-info btn-sm text-white">
+                            Show Candidates
+                        </a>
+
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
 </div>
+
+</div>
+
+
+
+
+<script>
+function confirmDelete() {
+    return confirm("Are you sure you want to delete this election?");
+}
+</script>
+
 
 </body>
 </html>

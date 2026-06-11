@@ -7,7 +7,7 @@
     <title>E-Voting System</title>
 
     <!-- CSS FILE -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
     <style>
     
     </style>

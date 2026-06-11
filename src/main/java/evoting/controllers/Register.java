@@ -11,27 +11,41 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 
-@WebServlet("/RegisterServlet")
+//@WebServlet("/RegisterServlet")
 public  class Register extends HttpServlet 
 {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
     	PrintWriter out =response.getWriter();
-    	response.setContentType("text/html"); // 
+    	response.setContentType("text/html"); 
     	
-    	String name =request.getParameter("name");
+    	String full_name = request.getParameter("fullname");
+    	 // 2️⃣ Print data for debugging
+    	System.out.println("======== DEBUG ========");
+    	System.out.println(request.getParameter("fullname"));
+    	System.out.println("=======================");
+    	
+    	String username = request.getParameter("username");
     	int age = Integer.parseInt(request.getParameter("age"));
     	String email =request.getParameter("email");  //inside string because it is an identifier, not calculation data
-    	String voter_id =request.getParameter("voterid");
+    	String voter_number =request.getParameter("voter_number");
     	String password = request.getParameter("password");// it  contains letters ,number ,symbol so string datatype
+    	
+    	  // 2️⃣ Print data for debugging
+       
+        System.out.println("USERNAME = " + username);
+        System.out.println("AGE = " + age);
+        System.out.println("EMAIL = " + email);
+        System.out.println("VOTER = " + voter_number);
+        System.out.println("PASSWORD = " + password);
    
     	Connection connection =null;
     	PreparedStatement ps = null;
@@ -45,19 +59,21 @@ public  class Register extends HttpServlet
     		    return;
     		}
     		
-    		String queryString = "INSERT INTO users(name, age,email, voter_id, password) VALUES (?, ?, ?, ?, ?)";
+    		String queryString = "INSERT INTO voters(full_name,username,age,email,voter_number, password) VALUES (?, ?, ?, ?, ?, ?)";
     		
     	    ps =connection.prepareStatement(queryString);
     		
-    		ps.setString(1, name);
-
-    		ps.setInt(2, age);
+    		ps.setString(1,full_name );
     		
-    		ps.setString(3, email);
+    		ps.setString(2, username);
 
-    		ps.setString(4, voter_id);
+    		ps.setInt(3, age);
+    		
+    		ps.setString(4, email);
 
-    		ps.setString(5, password);
+    		ps.setString(5, voter_number);
+
+    		ps.setString(6, password);
 
     		int rows = ps.executeUpdate();
     		if(rows > 0)
@@ -83,32 +99,30 @@ public  class Register extends HttpServlet
     		
     	}catch(Exception e)
     	{
+    	    e.printStackTrace();
+
     	    String msg = e.getMessage();
+
+    	    System.out.println(msg);
 
     	    if(msg.contains("email"))
     	    {
-    	        out.println(
-    	        "<script>alert('Email already registered ❌');</script>"
-    	        );
+    	        out.println("<script>alert('Email already registered ❌');</script>");
     	    }
-    	    else if(msg.contains("voter_id"))
+    	    else if(msg.contains("voter_number"))
     	    {
-    	        out.println(
-    	        "<script>alert('Voter ID already registered ❌');</script>"
-    	        );
+    	        out.println("<script>alert('Voter ID already registered ❌');</script>");
     	    }
     	    else
     	    {
-    	        out.println(
-    	        "<script>alert('Something went wrong ❌');</script>"
-    	        );
+    	        out.println("<script>alert('Something went wrong ❌');</script>");
     	    }
 
     	    RequestDispatcher rd =
     	    request.getRequestDispatcher("/pages/register.jsp");
 
     	    rd.include(request, response);
-    	} 	
+    	}	
     	
     	finally  // this finally block will execute at any how 
     	{

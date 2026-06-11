@@ -89,20 +89,22 @@ function ageCheck(){
 
 		}
 		
-		
 		function voterCheck()
 		{
-			let voteridNum = document.getElementById("voterid").value;
-				
-			let error = document.getElementById("voterIdError");
-			let regex = /^[0-9]{8}$/  // it will force to enter only 8 digit voter id .
-			
-			if (regex.test(voteridNum))
-				{
-					error.innerHTML="valid voter id";
-					error.style.color="green";
-				}else{
-					error.innerHTML ="Voter ID must contain exactly 8 digits."; 
-					error.style.color="red";
-				}
+		    let voteridNum = document.getElementById("voter_number").value;
+
+		    let error = document.getElementById("voterIdError");
+
+		    let regex = /^[0-9]{8}$/;
+
+		    if(regex.test(voteridNum))
+		    {
+		        error.innerHTML = "Valid Voter ID";
+		        error.style.color = "green";
+		    }
+		    else
+		    {
+		        error.innerHTML = "Voter ID must contain exactly 8 digits.";
+		        error.style.color = "red";
+		    }
 		}

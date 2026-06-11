@@ -52,13 +52,40 @@ background:#2563eb;
 color:white;
 }
 
-/* REGISTER SECTION */
+/* LOGIN + REGISTER SECTION FIX */
+
 .register-section{
+
 display:flex;
+
 justify-content:center;
-align-items:center;
-min-height:100vh;
+
+/* prevents card from sticking under navbar */
+align-items:flex-start;
+
+/* full remaining screen after navbar */
+min-height:calc(100vh - 80px);
+
+/* gap below navbar */
+padding-top:25px;
+
+padding-bottom:50px;
+}
+.login-section{
+
+display:flex;
+
+justify-content:center;
+
+/* prevents card from sticking under navbar */
+align-items:flex-start;
+
+/* full remaining screen after navbar */
+min-height:calc(100vh - 80px);
+
+/* gap below navbar */
 padding-top:100px;
+
 padding-bottom:50px;
 }
 

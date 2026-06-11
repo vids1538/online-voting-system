@@ -21,7 +21,7 @@ public class DbConnection {
 
             con = DriverManager.getConnection(url, user, password);
 
-            System.out.println("Connected Successfully");  // it will be print on console not web project 
+            System.out.println("database Connected Successfully");  // it will be print on console not web project 
 
         } catch (Exception e) {
 
