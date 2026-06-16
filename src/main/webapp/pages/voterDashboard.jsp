@@ -236,80 +236,126 @@
             background: #bdc3c7;
         }
         
-        /* Avatar with initials */
-        .avatar-initials {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #3498db;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 16px;
-            border: 2px solid white;
-        }
-        
-        .profile-avatar-initials {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: #3498db;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 36px;
-            margin: 0 auto 15px;
-            border: 3px solid #3498db;
-        }
-        
         /* Fix for image flickering */
         img {
             image-rendering: auto;
         }
         
-        .nav-profile-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
         
-        .nav-profile-container img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid white;
-        }
+        
+        
+        /* Voting Booth - Simple Tiles */
+.candidate-tile {
+    border: 1px solid #e0e0e0;
+    padding: 12px 18px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    background: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.candidate-tile:hover {
+    border-color: #3498db;
+    background: #f8f9fa;
+}
+
+.candidate-tile .info {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.candidate-tile .name {
+    font-weight: 600;
+    font-size: 15px;
+    color: #2c3e50;
+}
+
+.candidate-tile .party {
+    color: #7f8c8d;
+    font-size: 13px;
+}
+
+.vote-btn-small {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 5px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    min-width: 70px;
+}
+
+.vote-btn-small:hover:not(:disabled) {
+    background: #2980b9;
+}
+
+.vote-btn-small:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.vote-btn-small.voted {
+    background: #27ae60;
+}
+
+/* Already voted message */
+.already-voted-box {
+    text-align: center;
+    padding: 40px 20px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.already-voted-box .icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.already-voted-box .title {
+    font-size: 20px;
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.already-voted-box .sub {
+    color: #7f8c8d;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* Loading */
+.loading-text {
+    text-align: center;
+    padding: 30px;
+    color: #7f8c8d;
+}
+
+/* No candidates */
+.no-candidates {
+    text-align: center;
+    padding: 30px;
+    color: #7f8c8d;
+}
     </style>
 </head>
 <body>
 
 <%
-    String voterName = (String) session.getAttribute("voterName");
     String profilePicName = (String) session.getAttribute("profilePicture");
     String profilePicFullPath = "";
-    
-    // Get initials for fallback
-    String initials = "";
-    if (voterName != null && !voterName.isEmpty()) {
-        String[] nameParts = voterName.trim().split(" ");
-        if (nameParts.length >= 1) {
-            initials += nameParts[0].charAt(0);
-        }
-        if (nameParts.length >= 2) {
-            initials += nameParts[nameParts.length - 1].charAt(0);
-        }
-        initials = initials.toUpperCase();
-    }
-    
-    // Check if profile picture exists and is not default
     if(profilePicName != null && !profilePicName.isEmpty() && !profilePicName.equals("default.png")) {
         profilePicFullPath = request.getContextPath() + "/uploads/user-profile/" + profilePicName;
+    } else {
+        // No default image - show nothing or a simple icon
+        profilePicFullPath = "";
     }
 %>
 
@@ -317,21 +363,18 @@
 <div class="top-bar">
     <div class="logo">🗳️ Election Commission</div>
     <div style="display: flex; align-items: center; gap: 15px;">
-        <div class="nav-profile-container" onclick="showMyProfile(event)">
-            <% if(profilePicFullPath.isEmpty()) { %>
-                <div class="avatar-initials" id="navAvatarInitials"><%= initials %></div>
-            <% } else { %>
-                <img src="<%= profilePicFullPath %>" 
-                     alt="Profile" 
-                     id="navAvatarImg"
-                     onerror="this.style.display='none'; document.getElementById('navAvatarInitials').style.display='flex';">
-                <div class="avatar-initials" id="navAvatarInitials" style="display: none;"><%= initials %></div>
-            <% } %>
-            <span style="color: white; font-size: 14px;" id="navName"><%= voterName %></span>
+        <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="showMyProfile(event)">
+            <img src="<%= profilePicFullPath %>" 
+                 alt="Profile" 
+                 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid white;"
+                 onerror="this.src='<%= request.getContextPath() %>/uploads/user-profile/default.png'">
+            <span style="color: white; font-size: 14px;"><%= session.getAttribute("voterName") %></span>
         </div>
         <a href="<%= request.getContextPath() %>/LogoutServlet" class="logout-btn">Logout</a>
     </div>
 </div>
+
+
 
 <!-- Sidebar -->
 <div class="sidebar">
@@ -362,7 +405,7 @@
     <div id="dashboardSection">
         <div class="welcome-card">
             <div class="welcome-text">
-                Welcome <%= voterName %> 😊
+                Welcome <%= session.getAttribute("voterName") %> 😊
             </div>
         </div>
         
@@ -388,26 +431,20 @@
     <div id="profileSection" class="hidden">
         <div class="form-card">
             <h3 style="margin-bottom: 20px;">My Profile</h3>
-            <% if(profilePicFullPath.isEmpty()) { %>
-                <div class="profile-avatar-initials" id="profileViewInitials"><%= initials %></div>
-            <% } else { %>
-                <img src="<%= profilePicFullPath %>" 
-                     class="profile-pic" 
-                     id="profileViewImg"
-                     onerror="this.style.display='none'; document.getElementById('profileViewInitials').style.display='flex';">
-                <div class="profile-avatar-initials" id="profileViewInitials" style="display: none;"><%= initials %></div>
-            <% } %>
+            <img src="<%= profilePicFullPath %>" 
+                 class="profile-pic" 
+                 onerror="this.src='<%= request.getContextPath() %>/uploads/user-profile/default.png'">
             <div class="form-group">
                 <label>Full Name</label>
-                <input type="text" class="form-control" id="profileName" value="<%= voterName %>" readonly>
+                <input type="text" class="form-control" value="<%= session.getAttribute("voterName") %>" readonly>
             </div>
             <div class="form-group">
                 <label>Email</label>
-                <input type="text" class="form-control" id="profileEmail" value="<%= session.getAttribute("voterEmail") %>" readonly>
+                <input type="text" class="form-control" value="<%= session.getAttribute("voterEmail") %>" readonly>
             </div>
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" class="form-control" id="profileUsername" value="<%= session.getAttribute("voter") %>" readonly>
+                <input type="text" class="form-control" value="<%= session.getAttribute("voter") %>" readonly>
             </div>
             <div class="form-group">
                 <label>Voter Number</label>
@@ -416,42 +453,37 @@
         </div>
     </div>
     
-    <!-- Edit Profile Section -->
-    <div id="editProfileSection" class="hidden">
-        <div class="form-card">
-            <h3 style="margin-bottom: 20px;">Edit Profile</h3>
-            <form id="editProfileForm" enctype="multipart/form-data">
-                <% if(profilePicFullPath.isEmpty()) { %>
-                    <div class="profile-avatar-initials" id="editProfileInitials"><%= initials %></div>
-                <% } else { %>
-                    <img id="profilePreview" src="<%= profilePicFullPath %>"
-                         class="profile-pic"
-                         onerror="this.style.display='none'; document.getElementById('editProfileInitials').style.display='flex';">
-                    <div class="profile-avatar-initials" id="editProfileInitials" style="display: none;"><%= initials %></div>
-                <% } %>
-                <div style="text-align: center;">
-                    <label class="upload-btn">
-                        📷 Upload Photo
-                        <input type="file" name="profilePicture" accept="image/*" style="display: none" onchange="previewImage(this)">
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" name="fullName" class="form-control" value="<%= voterName %>" required>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" class="form-control" value="<%= session.getAttribute("voterEmail") %>" required>
-                </div>
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" name="username" class="form-control" value="<%= session.getAttribute("voter") %>" required>
-                </div>
-                <button type="button" class="btn-save" onclick="updateProfile()">Save Changes</button>
-                <button type="button" class="btn-cancel" onclick="showMyProfile(event)">Cancel</button>
-            </form>
-        </div>
+   <!-- Edit Profile Section -->
+<div id="editProfileSection" class="hidden">
+    <div class="form-card">
+        <h3 style="margin-bottom: 20px;">Edit Profile</h3>
+        <form id="editProfileForm" enctype="multipart/form-data">
+            <img id="profilePreview" src="<%= profilePicFullPath %>"
+                 class="profile-pic"
+                 onerror="this.style.display='none'">
+            <div style="text-align: center;">
+                <label class="upload-btn">
+                    📷 Upload Photo
+                    <input type="file" name="profilePicture" accept="image/*" style="display: none" onchange="previewImage(this)">
+                </label>
+            </div>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="fullName" class="form-control" value="<%= session.getAttribute("voterName") %>" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control" value="<%= session.getAttribute("voterEmail") %>" required>
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" class="form-control" value="<%= session.getAttribute("voter") %>" required>
+            </div>
+            <button type="button" class="btn-save" onclick="updateProfile()">Save Changes</button>
+            <button type="button" class="btn-cancel" onclick="showMyProfile(event)">Cancel</button>
+        </form>
     </div>
+</div>
     
     <!-- Change Password Section -->
     <div id="changePasswordSection" class="hidden">
@@ -477,21 +509,21 @@
     </div>
     
     <!-- Voting Booth Section -->
-    <div id="votingSection" class="hidden">
-        <div class="form-card">
-            <h3 style="margin-bottom: 20px;">Voting Booth</h3>
-            <% if(session.getAttribute("hasVoted") != null && (Boolean)session.getAttribute("hasVoted")) { %>
-                <div style="text-align: center; padding: 40px;">
-                    <div style="font-size: 48px;">✅</div>
-                    <h4>You have already voted</h4>
-                    <p>Thank you for participating!</p>
-                </div>
-            <% } else { %>
-                <div id="candidatesList">
-                    <p>Loading candidates...</p>
-                </div>
-            <% } %>
-        </div>
+<div id="votingSection" class="hidden">
+    <!-- Heading outside the card -->
+    <div style="margin-bottom: 25px;">
+        <h2 style="color: #2c3e50; font-weight: 600; font-size: 28px;">🗳 Voting Booth</h2>
+        <p style="color: #7f8c8d; margin-top: 5px; font-size: 14px;">Select your candidate wisely. Your vote is your voice!</p>
+    </div>
+    
+    <!-- Loading -->
+    <div id="votingLoading" style="text-align: center; padding: 30px;">
+        <p>Loading candidates...</p>
+    </div>
+    
+    <!-- Candidates container -->
+    <div id="candidatesContainer" style="display: none;">
+        <!-- Candidates loaded here -->
     </div>
 </div>
 
@@ -501,116 +533,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     let isLoading = false;
-    
-    // Function to get initials from full name
-    function getInitials(fullName) {
-        if (!fullName || fullName.trim() === '') return '';
-        var nameParts = fullName.trim().split(' ');
-        var initials = '';
-        if (nameParts.length >= 1) {
-            initials += nameParts[0].charAt(0);
-        }
-        if (nameParts.length >= 2) {
-            initials += nameParts[nameParts.length - 1].charAt(0);
-        }
-        return initials.toUpperCase();
-    }
-    
-    // Function to update all profile images
-    function updateProfileImages(imageUrl, fullName) {
-        var initials = getInitials(fullName);
-        var timestamp = new Date().getTime();
-        var fullImageUrl = imageUrl + '?t=' + timestamp;
-        
-        // Update Navbar
-        var navImg = document.getElementById('navAvatarImg');
-        var navInitials = document.getElementById('navAvatarInitials');
-        if (imageUrl) {
-            if (navImg) {
-                navImg.src = fullImageUrl;
-                navImg.style.display = 'block';
-            }
-            if (navInitials) {
-                navInitials.style.display = 'none';
-            }
-        } else {
-            if (navImg) {
-                navImg.style.display = 'none';
-            }
-            if (navInitials) {
-                navInitials.textContent = initials;
-                navInitials.style.display = 'flex';
-            }
-        }
-        
-        // Update Profile View
-        var profileImg = document.getElementById('profileViewImg');
-        var profileInitials = document.getElementById('profileViewInitials');
-        if (imageUrl) {
-            if (profileImg) {
-                profileImg.src = fullImageUrl;
-                profileImg.style.display = 'block';
-            }
-            if (profileInitials) {
-                profileInitials.style.display = 'none';
-            }
-        } else {
-            if (profileImg) {
-                profileImg.style.display = 'none';
-            }
-            if (profileInitials) {
-                profileInitials.textContent = initials;
-                profileInitials.style.display = 'flex';
-            }
-        }
-        
-        // Update Edit Profile Preview
-        var editImg = document.getElementById('profilePreview');
-        var editInitials = document.getElementById('editProfileInitials');
-        if (imageUrl) {
-            if (editImg) {
-                editImg.src = fullImageUrl;
-                editImg.style.display = 'block';
-            }
-            if (editInitials) {
-                editInitials.style.display = 'none';
-            }
-        } else {
-            if (editImg) {
-                editImg.style.display = 'none';
-            }
-            if (editInitials) {
-                editInitials.textContent = initials;
-                editInitials.style.display = 'flex';
-            }
-        }
-        
-        // Update Navbar Name
-        var navName = document.getElementById('navName');
-        if (navName) {
-            navName.textContent = fullName;
-        }
-        
-        // Update Profile View Text Fields
-        var profileName = document.getElementById('profileName');
-        var profileEmail = document.getElementById('profileEmail');
-        var profileUsername = document.getElementById('profileUsername');
-        var editFullName = document.querySelector('input[name="fullName"]');
-        var editEmail = document.querySelector('input[name="email"]');
-        var editUsername = document.querySelector('input[name="username"]');
-        
-        if (profileName) profileName.value = fullName;
-        if (editFullName) editFullName.value = fullName;
-        
-        // Get email and username from form
-        var email = document.querySelector('input[name="email"]') ? document.querySelector('input[name="email"]').value : '';
-        var username = document.querySelector('input[name="username"]') ? document.querySelector('input[name="username"]').value : '';
-        
-        if (profileEmail) profileEmail.value = email;
-        if (profileUsername) profileUsername.value = username;
-        if (editEmail) editEmail.value = email;
-        if (editUsername) editUsername.value = username;
-    }
     
     function loadTotalCandidates() {
         if(isLoading) return;
@@ -666,53 +588,64 @@
             var reader = new FileReader();
             reader.onload = function(e) {
                 $('#profilePreview').attr('src', e.target.result);
-                $('#profilePreview').show();
-                $('#editProfileInitials').hide();
             };
             reader.readAsDataURL(input.files[0]);
         }
     }
     
-    // Updated updateProfile function
+    // FIXED: Update profile with page reload to show new image
     function updateProfile() {
-        var formData = new FormData($('#editProfileForm')[0]);
-        
-        $.ajax({
-            url: '<%= request.getContextPath() %>/UpdateProfileServlet',
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                if (response && response.startsWith('success')) {
-                    showMessage('Profile updated successfully', false);
+    var formData = new FormData($('#editProfileForm')[0]);
+
+    $.ajax({
+        url: '<%= request.getContextPath() %>/UpdateProfileServlet',
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            if (response && response.startsWith('success')) {
+                showMessage('Profile updated successfully', false);
+
+                // Extract new filename from response e.g. "success:abc123.jpg"
+                var parts = response.split(':');
+                var newFileName = parts.length > 1 ? parts[1].trim() : '';
+
+                if (newFileName && newFileName !== 'default.png') {
+                    var newImgUrl = '<%= request.getContextPath() %>/uploads/user-profile/'
+                                    + newFileName
+                                    + '?t=' + new Date().getTime(); // cache-bust
+
+                    // Update navbar avatar
+                    $('#navAvatarImg').attr('src', newImgUrl).show();
+                    $('#navAvatarInitial').hide();
+
+                    // Update edit profile preview
+                    $('#profilePreview').attr('src', newImgUrl).show();
                     
-                    // Get the new filename if provided
-                    var parts = response.split(':');
-                    var newFileName = parts.length > 1 ? parts[1].trim() : '';
-                    
-                    // Get full name from form
-                    var fullName = document.querySelector('input[name="fullName"]').value;
-                    
-                    // Update images with new filename
-                    if (newFileName && newFileName !== 'default.png') {
-                        var imageUrl = '<%= request.getContextPath() %>/uploads/user-profile/' + newFileName;
-                        updateProfileImages(imageUrl, fullName);
-                    } else {
-                        // No image uploaded, show initials
-                        updateProfileImages(null, fullName);
-                    }
-                    
-                } else {
-                    showMessage('Error updating profile', true);
+                    // Update my profile pic if it exists
+                    $('#profileViewImg').attr('src', newImgUrl).show();
                 }
-            },
-            error: function() {
+
+                // Update text fields in My Profile view
+                var newName = $('input[name="fullName"]').val();
+                var newEmail = $('input[name="email"]').val();
+                var newUsername = $('input[name="username"]').val();
+
+                $('#profileName').val(newName);
+                $('#profileEmail').val(newEmail);
+                $('#profileUsername').val(newUsername);
+                $('#navName').text(newName);
+
+            } else {
                 showMessage('Error updating profile', true);
             }
-        });
-    }
-    
+        },
+        error: function() {
+            showMessage('Error updating profile', true);
+        }
+    });
+}
     function changePassword() {
         var currentPwd = $('input[name="currentPassword"]').val();
         var newPwd = $('input[name="newPassword"]').val();
@@ -757,7 +690,7 @@
                         showMessage('Vote cast successfully', false);
                         setTimeout(function() {
                             location.reload();
-                        }, 1500);
+                        }, 3000);
                     } else if(response === 'already_voted') {
                         showMessage('You have already voted', true);
                     } else {
@@ -829,6 +762,77 @@
         $('#changePasswordSection').addClass('hidden');
         $('#votingSection').removeClass('hidden');
         loadCandidates();
+    }
+    
+    
+    
+    
+ // Show voting booth
+    function showVotingBooth(event) {
+        if(event) event.preventDefault();
+        $('.sidebar-item').removeClass('active');
+        $('.sidebar-item').eq(4).addClass('active');
+        $('#dashboardSection').addClass('hidden');
+        $('#profileSection').addClass('hidden');
+        $('#editProfileSection').addClass('hidden');
+        $('#changePasswordSection').addClass('hidden');
+        $('#votingSection').removeClass('hidden');
+        
+        loadCandidates();
+    }
+
+    // Load candidates
+    function loadCandidates() {
+        $('#votingLoading').show();
+        $('#candidatesContainer').hide();
+        
+        $.ajax({
+            url: '<%= request.getContextPath() %>/GetCandidatesServlet',
+            method: 'GET',
+            success: function(response) {
+                $('#votingLoading').hide();
+                $('#candidatesContainer').html(response);
+                $('#candidatesContainer').show();
+            },
+            error: function() {
+                $('#votingLoading').hide();
+                $('#candidatesContainer').html('<p style="color: red; text-align: center;">Error loading candidates</p>');
+                $('#candidatesContainer').show();
+            }
+        });
+    }
+
+    // Cast vote
+    function castVote(candidateId, partyName) {
+        if(confirm('Are you sure you want to vote for ' + partyName + ' party?')) {
+            
+            // Disable all vote buttons
+            $('.vote-btn-small').prop('disabled', true).css('opacity', '0.6');
+            
+            $.ajax({
+                url: '<%= request.getContextPath() %>/CastVoteServlet',
+                method: 'POST',
+                data: { candidateId: candidateId },
+                success: function(response) {
+                    if(response === 'success') {
+                        showMessage('✅ Voted successfully!', false);
+                        setTimeout(function() {
+                            loadCandidates();
+                        }, 1500);
+                    } else if(response === 'already_voted') {
+                        showMessage('You have already voted!', true);
+                        loadCandidates();
+                    } else {
+                        showMessage('Error casting vote', true);
+                        $('.vote-btn-small').prop('disabled', false).css('opacity', '1');
+                    }
+                },
+                error: function() {
+                    showMessage('Error casting vote', true);
+                    $('.vote-btn-small').prop('disabled', false).css('opacity', '1');
+                }
+            });
+        }
     }
     
     $(document).ready(function() {

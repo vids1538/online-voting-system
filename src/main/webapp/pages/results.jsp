@@ -152,13 +152,48 @@
         .winner-box {
             background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
             border-radius: 12px;
-            padding: 16px 24px;
+            padding: 30px 24px;
             margin-top: 20px;
+            text-align: center;
+        }
+
+        .winner-box .crown {
+            font-size: 48px;
+        }
+
+        .winner-box .winner-name {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-top: 5px;
+        }
+
+        .winner-box .winner-party {
+            font-size: 18px;
+            color: #475569;
+        }
+
+        .winner-box .winner-votes {
+            font-size: 20px;
+            color: #16a34a;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .winner-box .no-votes {
+            font-size: 18px;
+            color: #f59e0b;
         }
 
         .table th {
             background-color: #1e293b;
             color: white;
+        }
+
+        .btn-declare {
+            padding: 10px 30px;
+            font-size: 16px;
+            font-weight: 600;
         }
 
         @media (max-width: 768px) {
@@ -219,17 +254,48 @@
 <!-- ===== MAIN CONTENT ===== -->
 <main class="main-content">
     <div class="page-header">
-        <h1>Election Results - Lok Sabha 2024</h1>
-        <p>View all candidates and the election winner.</p>
+        <h1 style="text-align: center;">🗳️ Election Results</h1>
+        <p style="text-align: center;">View all candidates and declare the election winner.</p>
     </div>
 
     <div class="card shadow-sm p-4">
         
-        <!-- Refresh/Show Results Button -->
-        <div class="mb-3 text-end">
-            <a href="results.jsp" class="btn btn-primary">
-                <i class="bi bi-arrow-repeat"></i> Refresh Results
-            </a>
+        <!-- Buttons -->
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <div>
+                <span class="badge bg-primary fs-6">
+                    <i class="bi bi-people"></i> Total Votes Cast: 
+                    <%
+                        int totalVotes = 0;
+                        Connection conn0 = null;
+                        Statement stmt0 = null;
+                        ResultSet rs0 = null;
+                        try {
+                            conn0 = DbConnection.getConnection();
+                            stmt0 = conn0.createStatement();
+                            rs0 = stmt0.executeQuery("SELECT COUNT(*) FROM votes");
+                            if(rs0.next()) {
+                                totalVotes = rs0.getInt(1);
+                            }
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            if(rs0 != null) try { rs0.close(); } catch(Exception e) {}
+                            if(stmt0 != null) try { stmt0.close(); } catch(Exception e) {}
+                            if(conn0 != null) try { conn0.close(); } catch(Exception e) {}
+                        }
+                    %>
+                    <%= totalVotes %>
+                </span>
+            </div>
+            <div>
+                <a href="results.jsp" class="btn btn-secondary me-2">
+                    <i class="bi bi-arrow-repeat"></i> Refresh
+                </a>
+                <a href="results.jsp?declare=winner" class="btn btn-success btn-declare">
+                    <i class="bi bi-trophy"></i> Declare Result
+                </a>
+            </div>
         </div>
 
         <!-- Candidates Table -->
@@ -237,10 +303,10 @@
             <table class="table table-hover">
                 <thead class="table-dark">
                     <tr>
-                        <th>Candidate ID</th>
+                        <th>#</th>
                         <th>Candidate Name</th>
                         <th>Party Name</th>
-                        
+                        <th>Votes</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -248,17 +314,16 @@
                         Connection conn = null;
                         Statement stmt = null;
                         ResultSet rs = null;
-                        String winner = "";
-                        int maxVotes = -1;
                         int totalCandidates = 0;
+                        int rank = 1;
                         
                         try {
                             conn = DbConnection.getConnection();
                             stmt = conn.createStatement();
                             
-                            // Note: Your table doesn't have a vote_count column yet
-                            // For now, displaying all candidates. Winner logic will work once you add vote_count
-                            String query = "SELECT candidate_id, full_name, party_name, age, gender, qualification FROM candidates ORDER BY candidate_id";
+                            // Query with vote_count from candidates table
+                            String query = "SELECT candidate_id, full_name, party_name, vote_count " +
+                                           "FROM candidates ORDER BY vote_count DESC";
                             rs = stmt.executeQuery(query);
                             
                             while(rs.next()) {
@@ -266,21 +331,29 @@
                                 int candidateId = rs.getInt("candidate_id");
                                 String fullName = rs.getString("full_name");
                                 String partyName = rs.getString("party_name");
+                                int voteCount = rs.getInt("vote_count");
                                 
+                                // Rank badge
+                                String rankBadge = "";
+                                if(rank == 1) rankBadge = "🥇";
+                                else if(rank == 2) rankBadge = "🥈";
+                                else if(rank == 3) rankBadge = "🥉";
+                                else rankBadge = "#" + rank;
                     %>
                                 <tr>
-                                    <td><%= candidateId %></td>
-                                    <td><%= fullName %></td>
+                                    <td><%= rankBadge %></td>
+                                    <td><strong><%= fullName %></strong></td>
                                     <td><%= partyName %></td>
-                                   
+                                    <td><span class="badge bg-primary"><%= voteCount %></span></td>
                                 </tr>
                     <%
+                                rank++;
                             }
                             
                             if(totalCandidates == 0) {
                     %>
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted">
+                                    <td colspan="4" class="text-center text-muted">
                                         No candidates found in the database.
                                     </td>
                                 </tr>
@@ -291,7 +364,7 @@
                             e.printStackTrace();
                     %>
                             <tr>
-                                <td colspan="6" class="text-center text-danger">
+                                <td colspan="4" class="text-center text-danger">
                                     Error loading candidates: <%= e.getMessage() %>
                                 </td>
                             </tr>
@@ -308,50 +381,81 @@
 
         <hr>
 
-        <!-- Winner Display - Currently showing message since no vote_count column -->
+        <!-- Winner Display -->
         <div class="winner-box">
-            <h5 class="mb-2">🏆 Winner</h5>
             <%
-                // Note: Since your candidates table doesn't have a vote_count column,
-                // you need to add it to track votes.
-                // Run this SQL in MySQL:
-                // ALTER TABLE candidates ADD COLUMN vote_count INT DEFAULT 0;
+                // Check if Declare Result button was clicked
+                String declare = request.getParameter("declare");
                 
-                // Once you add vote_count column, use this code:
-                /*
-                try {
-                    conn = DbConnection.getConnection();
-                    String winnerQuery = "SELECT full_name, party_name, vote_count FROM candidates ORDER BY vote_count DESC LIMIT 1";
-                    Statement winnerStmt = conn.createStatement();
-                    ResultSet winnerRs = winnerStmt.executeQuery(winnerQuery);
-                    if(winnerRs.next()) {
-                        winner = winnerRs.getString("full_name");
-                        int voteCount = winnerRs.getInt("vote_count");
-                        out.println("<h4 class='text-success mb-0'>" + winner + "</h4>");
-                        out.println("<small>Total Votes: " + voteCount + "</small>");
-                    } else {
-                        out.println("<h4 class='text-muted mb-0'>No votes cast yet</h4>");
-                    }
-                    winnerRs.close();
-                    winnerStmt.close();
-                    conn.close();
-                } catch(Exception e) {
-                    out.println("<h4 class='text-danger mb-0'>Error fetching winner</h4>");
-                }
-                */
+                if(declare != null && declare.equals("winner")) {
+                    // Calculate winner from candidates table
+                    Connection conn2 = null;
+                    Statement stmt2 = null;
+                    ResultSet rs2 = null;
+                    
+                    try {
+                        conn2 = DbConnection.getConnection();
+                        stmt2 = conn2.createStatement();
+                        
+                        String winnerQuery = "SELECT full_name, party_name, vote_count FROM candidates " +
+                                             "ORDER BY vote_count DESC LIMIT 1";
+                        rs2 = stmt2.executeQuery(winnerQuery);
+                        
+                        if(rs2.next()) {
+                            String winnerName = rs2.getString("full_name");
+                            String winnerParty = rs2.getString("party_name");
+                            int voteCount = rs2.getInt("vote_count");
+                            
+                            if(voteCount > 0) {
             %>
-            <h4 class="text-warning mb-0">⚠️ Vote counting pending</h4>
-            <small class="text-muted">
-                To enable winner declaration, add 'vote_count' column to candidates table:<br>
-                <code>ALTER TABLE candidates ADD COLUMN vote_count INT DEFAULT 0;</code>
-            </small>
+                                <div class="crown">🏆</div>
+                                <div class="winner-name"><%= winnerName %></div>
+                                <div class="winner-party"><%= winnerParty %></div>
+                                <div class="winner-votes">Total Votes: <%= voteCount %></div>
+            <%
+                            } else {
+            %>
+                                <div class="crown">📢</div>
+                                <div class="no-votes">No votes cast yet!</div>
+                                <p style="color: #7f8c8d; margin-top: 10px;">Waiting for voters to cast their votes.</p>
+            <%
+                            }
+                        } else {
+            %>
+                            <div class="crown">⚠️</div>
+                            <div class="no-votes">No candidates found!</div>
+            <%
+                        }
+                        
+                    } catch(Exception e) {
+                        e.printStackTrace();
+            %>
+                        <div class="crown">❌</div>
+                        <div class="no-votes">Error fetching winner</div>
+            <%
+                    } finally {
+                        if(rs2 != null) try { rs2.close(); } catch(Exception e) {}
+                        if(stmt2 != null) try { stmt2.close(); } catch(Exception e) {}
+                        if(conn2 != null) try { conn2.close(); } catch(Exception e) {}
+                    }
+                } else {
+                    // Default message - before declaring result
+            %>
+                    <h4 style="color: #f59e0b;">Click "Declare Result" to see the winner</h4>
+                    <p style="color: #7f8c8d;">The winner will be displayed here based on vote counts.</p>
+            <%
+                }
+            %>
         </div>
         
         <!-- Total Candidates Count -->
-        <div class="mt-3 text-end">
+        <div class="mt-3 d-flex justify-content-between align-items-center">
             <small class="text-muted">
                 <i class="bi bi-person-badge"></i> Total Candidates: 
                 <strong><%= totalCandidates %></strong>
+            </small>
+            <small class="text-muted">
+                <i class="bi bi-calendar"></i> Last Updated: <%= new java.util.Date() %>
             </small>
         </div>
     </div>

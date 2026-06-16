@@ -21,9 +21,25 @@ public class CastVoteServlet extends HttpServlet {
         
         HttpSession session = request.getSession();
         Integer voterId = (Integer) session.getAttribute("voterId");
-        int candidateId = Integer.parseInt(request.getParameter("candidateId"));
+        String voterNumber = (String) session.getAttribute("voterNumber");
         
-        if(voterId == null) {
+        // Check if voter is logged in
+        if(voterId == null || voterNumber == null) {
+            response.getWriter().write("error");
+            return;
+        }
+        
+        // Get candidate ID from request
+        String candidateIdParam = request.getParameter("candidateId");
+        if(candidateIdParam == null || candidateIdParam.isEmpty()) {
+            response.getWriter().write("error");
+            return;
+        }
+        
+        int candidateId = 0;
+        try {
+            candidateId = Integer.parseInt(candidateIdParam);
+        } catch(NumberFormatException e) {
             response.getWriter().write("error");
             return;
         }
@@ -35,34 +51,50 @@ public class CastVoteServlet extends HttpServlet {
         try {
             conn = DbConnection.getConnection();
             
-            // Check if already voted
-            String checkQuery = "SELECT has_voted FROM voters WHERE voter_id=?";
-            ps = conn.prepareStatement(checkQuery);
+            // STEP 1: Check if voter already voted
+            String checkSql = "SELECT has_voted FROM voters WHERE voter_id = ?";
+            ps = conn.prepareStatement(checkSql);
             ps.setInt(1, voterId);
             rs = ps.executeQuery();
             
-            if(rs.next() && rs.getBoolean("has_voted")) {
-                response.getWriter().write("already_voted");
+            if(rs.next()) {
+                int hasVoted = rs.getInt("has_voted");
+                if(hasVoted == 1) {
+                    response.getWriter().write("already_voted");
+                    return;
+                }
+            } else {
+                response.getWriter().write("error");
                 return;
             }
             
-            // Cast vote - Insert into votes table
-            String insertQuery = "INSERT INTO votes (voter_id, candidate_id, vote_date) VALUES (?, ?, NOW())";
-            ps = conn.prepareStatement(insertQuery);
+            // Close previous statements
+            rs.close();
+            ps.close();
+            
+            // STEP 2: Insert vote with voter_number
+            String insertSql = "INSERT INTO votes (voter_id, voter_number, candidate_id) VALUES (?, ?, ?)";
+            ps = conn.prepareStatement(insertSql);
             ps.setInt(1, voterId);
-            ps.setInt(2, candidateId);
-            ps.executeUpdate();
+            ps.setString(2, voterNumber);
+            ps.setInt(3, candidateId);
             
-            // Update voter status
-            String updateQuery = "UPDATE voters SET has_voted=1 WHERE voter_id=?";
-            ps = conn.prepareStatement(updateQuery);
-            ps.setInt(1, voterId);
-            ps.executeUpdate();
+            int rowsInserted = ps.executeUpdate();
             
-            // Update session
-            session.setAttribute("hasVoted", true);
-            
-            response.getWriter().write("success");
+            if(rowsInserted > 0) {
+                // STEP 3: Update voter's has_voted status
+                String updateSql = "UPDATE voters SET has_voted = 1 WHERE voter_id = ?";
+                ps = conn.prepareStatement(updateSql);
+                ps.setInt(1, voterId);
+                ps.executeUpdate();
+                
+                // STEP 4: Update session
+                session.setAttribute("hasVoted", true);
+                
+                response.getWriter().write("success");
+            } else {
+                response.getWriter().write("error");
+            }
             
         } catch(Exception e) {
             e.printStackTrace();
