@@ -16,6 +16,7 @@
      <jsp:include page="jsp/components/hero.jsp"/>
     
     <jsp:include page="jsp/components/features.jsp"/>  
+   
     <jsp:include page="jsp/components/footer.jsp" />
 
 </body>

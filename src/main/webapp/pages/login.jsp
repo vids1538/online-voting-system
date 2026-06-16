@@ -99,7 +99,7 @@
             <!-- NAV BUTTONS -->
             <div class="nav-buttons">
 
-                <a href="${pageContext.request.contextPath}/pages/login.jsp"
+                <a href="${pageContext.request.contextPath}/pages/voterLogin.jsp"
                     class="btn nav-btn">
                     Login
                 </a>
@@ -185,7 +185,7 @@
                   </a>
 
                    </div>
-                <!-- ================= ADMIN SECTION close  ================= -->
+                <!-- ================= ADMIN button SECTION close  ================= -->
 
             </form>
 
