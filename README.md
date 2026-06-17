@@ -95,7 +95,7 @@ git clone https://github.com/vids1538/online-voting-system
 
 ---
 
-## 📸 Screenshots
+## 📸 Screenshots ( pending )
 
 Add screenshots of:
 
